@@ -24,7 +24,7 @@ services:
     volumes:
       - "./nginx_backend.conf:/usr/local/openresty/nginx/conf/nginx.conf"
     ports:
-      - "8080:8080"
+      - "2034:8080"
 
   backend1:
     extends:
