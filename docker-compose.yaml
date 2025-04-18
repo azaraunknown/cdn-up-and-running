@@ -1,16 +1,19 @@
 version: "3.9"
+
+x-nginx-base: &nginx_base
+  build:
+    context: .
+  volumes:
+    - "./generic_conf/:/usr/local/openresty/nginx/conf/generic_conf/"
+    - "./src/:/lua/src/"
+
 services:
-  nginx_base:
-    build:
-      context: .
-    volumes:
-      - "./generic_conf/:/usr/local/openresty/nginx/conf/generic_conf/"
-      - "./src/:/lua/src/"
   loadbalancer:
-    extends:
-      service: nginx_base
+    <<: *nginx_base
     volumes:
       - "./nginx_loadbalancer.conf:/usr/local/openresty/nginx/conf/nginx.conf"
+      - "./generic_conf/:/usr/local/openresty/nginx/conf/generic_conf/"
+      - "./src/:/lua/src/"
     ports:
       - "18080:8080"
     depends_on:
@@ -19,26 +22,29 @@ services:
       - edge2
 
   backend:
-    extends:
-      service: nginx_base
+    <<: *nginx_base
     volumes:
       - "./nginx_backend.conf:/usr/local/openresty/nginx/conf/nginx.conf"
+      - "./generic_conf/:/usr/local/openresty/nginx/conf/generic_conf/"
+      - "./src/:/lua/src/"
     ports:
       - "2034:8080"
 
   backend1:
-    extends:
-      service: nginx_base
+    <<: *nginx_base
     volumes:
       - "./nginx_backend.conf:/usr/local/openresty/nginx/conf/nginx.conf"
+      - "./generic_conf/:/usr/local/openresty/nginx/conf/generic_conf/"
+      - "./src/:/lua/src/"
     ports:
       - "8180:8080"
 
   edge:
-    extends:
-      service: nginx_base
+    <<: *nginx_base
     volumes:
       - "./nginx_edge.conf:/usr/local/openresty/nginx/conf/nginx.conf"
+      - "./generic_conf/:/usr/local/openresty/nginx/conf/generic_conf/"
+      - "./src/:/lua/src/"
     depends_on:
       - backend
       - backend1
@@ -46,10 +52,11 @@ services:
       - "8081:8080"
 
   edge1:
-    extends:
-      service: nginx_base
+    <<: *nginx_base
     volumes:
       - "./nginx_edge.conf:/usr/local/openresty/nginx/conf/nginx.conf"
+      - "./generic_conf/:/usr/local/openresty/nginx/conf/generic_conf/"
+      - "./src/:/lua/src/"
     depends_on:
       - backend
       - backend1
@@ -57,10 +64,11 @@ services:
       - "8082:8080"
 
   edge2:
-    extends:
-      service: nginx_base
+    <<: *nginx_base
     volumes:
       - "./nginx_edge.conf:/usr/local/openresty/nginx/conf/nginx.conf"
+      - "./generic_conf/:/usr/local/openresty/nginx/conf/generic_conf/"
+      - "./src/:/lua/src/"
     depends_on:
       - backend
       - backend1
@@ -97,7 +105,7 @@ services:
     image: grafana/grafana:latest
     container_name: monitoring_grafana
     restart: unless-stopped
-    links:
+    depends_on:
       - prometheus
     volumes:
       - ./data/grafana:/var/lib/grafana
